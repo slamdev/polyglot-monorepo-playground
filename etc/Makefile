@@ -1,3 +1,7 @@
+.PHONY: clean
+clean:
+	@echo "etc-clean $(ENVIRONMENT)"
+
 .PHONY: check
 check:
 	@echo "etc-check $(ENVIRONMENT)"

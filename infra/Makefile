@@ -1,3 +1,7 @@
+.PHONY: clean
+clean:
+	@echo "infra-clean $(ENVIRONMENT)"
+
 .PHONY: check
 check:
 	@echo "infra-check $(ENVIRONMENT)"

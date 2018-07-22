@@ -1,3 +1,8 @@
+.PHONY: clean
+clean: install
+	cd apps/app1 && yarn run clean
+	cd services/svc-js && yarn run clean
+
 .PHONY: install
 install:
 	cd apps/app1 && yarn install

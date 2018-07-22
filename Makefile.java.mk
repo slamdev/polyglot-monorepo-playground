@@ -1,3 +1,7 @@
+.PHONY: clean
+clean:
+	cd services/svc-java && ./gradlew clean --console=plain --no-daemon
+
 .PHONY: check
 check:
 	cd services/svc-java && ./gradlew check --console=plain --no-daemon

@@ -1,3 +1,7 @@
+.PHONY: clean
+clean:
+	@echo "ops-clean $(ENVIRONMENT)"
+
 .PHONY: check
 check:
 	@echo "ops-check $(ENVIRONMENT)"
