@@ -1,0 +1,8 @@
+bases:
+- ../../../base/
+patches:
+- ports-patch.yaml
+- resources-patch.yaml
+- probes-patch.yaml
+commonLabels:
+  lang: java

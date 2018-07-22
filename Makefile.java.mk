@@ -13,3 +13,4 @@ build:
 .PHONY: deploy
 deploy:
 	cd services/svc-java && docker build -f deploy/docker/Dockerfile .
+	cd services/svc-java && kustomize build deploy/k8s/overlays/$(ENVIRONMENT) > build/k8s.yaml

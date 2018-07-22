@@ -1,0 +1,5 @@
+# This file is ignored by kustomize for some reasons
+# Everything below should be duplicated for dev\prod overlays
+commonLabels:
+  name: svc-java
+namePrefix: svc-java-

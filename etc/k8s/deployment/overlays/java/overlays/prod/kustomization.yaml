@@ -1,0 +1,7 @@
+bases:
+- ../../base
+patches:
+- resources-patch.yaml
+- env-patch.yaml
+- replicas-patch.yaml
+namespace: playground-prod

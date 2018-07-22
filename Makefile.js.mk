@@ -21,4 +21,6 @@ build:
 .PHONY: deploy
 deploy:
 	cd apps/app1 && docker build -f deploy/docker/Dockerfile .
+	cd apps/app1 && kustomize build deploy/k8s/overlays/$(ENVIRONMENT) > build/k8s.yaml
 	cd services/svc-js && docker build -f deploy/docker/Dockerfile .
+	cd services/svc-js && kustomize build deploy/k8s/overlays/$(ENVIRONMENT) > build/k8s.yaml
