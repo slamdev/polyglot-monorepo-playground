@@ -7,4 +7,4 @@ spec:
     spec:
       containers:
       - name: app
-        image: slamdev/playground/app1:prod
+        image: slamdev/playground-app1:prod

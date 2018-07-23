@@ -1,0 +1,19 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+  - imageName: slamdev/playground-svc-java
+    workspace: .
+    docker:
+      dockerfilePath: deploy/docker/Dockerfile
+profiles:
+- name: dev
+  deploy:
+    kustomize:
+      kustomizePath: deploy/k8s/overlays/dev
+- name: prod
+  deploy:
+    kustomize:
+      kustomizePath: deploy/k8s/overlays/prod
