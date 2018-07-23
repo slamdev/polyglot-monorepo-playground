@@ -13,3 +13,4 @@ build:
 .PHONY: deploy
 deploy:
 	cd namespace-configuration && skaffold run --verbosity=info
+	cd registry-ui && skaffold run --verbosity=info

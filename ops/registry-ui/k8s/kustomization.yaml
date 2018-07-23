@@ -1,0 +1,11 @@
+bases:
+- ../../../etc/k8s/deployment/overlays/generic/base
+- ../../../etc/k8s/service/overlays/generic/base
+patches:
+- image-patch.yaml
+- ports-patch.yaml
+- resources-patch.yaml
+commonLabels:
+  name: registry-ui
+namePrefix: registry-ui-
+namespace: playground-ops

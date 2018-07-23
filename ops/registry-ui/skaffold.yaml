@@ -1,0 +1,13 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+  - imageName: slamdev/playground-registry-ui
+    workspace: .
+    docker:
+      dockerfilePath: docker/Dockerfile
+deploy:
+  kustomize:
+    kustomizePath: k8s
