@@ -1,8 +1,9 @@
 SHELL = /bin/bash
 
 e = dev
-# this variable will be accesible from sub-makefiles
+# these variables will be accesible from sub-makefiles
 export ENVIRONMENT := ${e}
+export PROJECT := playground
 
 MODULES := etc ops infra js java
 CLEAN_TARGETS := $(foreach m,$(MODULES),clean-$(m))
@@ -82,3 +83,24 @@ define colorecho
 	@echo $1
 	@tput sgr0
 endef
+
+##
+## Get rollout status of single deployment in namespace
+##
+define _rollout_status
+	set -e;\
+	kubectl rollout status deploy $(1) -n$(2);
+endef
+export rollout_status = $(value _rollout_status)
+
+##
+## Get rollout status of all deployments in namespace
+##
+define _rollout_statuses
+	$(eval DEPLOYS := `kubectl get deploy -o jsonpath='{.items[*].metadata.name}' -n$(1)`)
+	@for app in $(DEPLOYS); do\
+        set -e;\
+        kubectl rollout status deploy $$app -n$(1);\
+    done
+endef
+export rollout_statuses = $(value _rollout_statuses)

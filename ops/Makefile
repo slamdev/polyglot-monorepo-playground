@@ -14,3 +14,4 @@ build:
 deploy:
 	cd namespace-configuration && skaffold run --verbosity=info
 	cd registry-ui && skaffold run --verbosity=info
+	$(call rollout_statuses,$(PROJECT)-ops)

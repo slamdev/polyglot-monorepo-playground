@@ -13,3 +13,4 @@ build:
 .PHONY: deploy
 deploy:
 	cd services/svc-java && skaffold run --verbosity=info --profile=$(ENVIRONMENT)
+	$(call rollout_status,svc-java-app,$(PROJECT)-$(ENVIRONMENT))
