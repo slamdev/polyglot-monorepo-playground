@@ -12,4 +12,4 @@ build:
 
 .PHONY: deploy
 deploy:
-	@echo "ops-deploy $(ENVIRONMENT)"
+	cd namespace-configuration && skaffold run --verbosity=info

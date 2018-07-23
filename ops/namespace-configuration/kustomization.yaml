@@ -1,0 +1,3 @@
+resources:
+- namespace.yaml
+# Some common secrets\configmaps can be placed here
