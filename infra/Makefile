@@ -13,3 +13,4 @@ build:
 .PHONY: deploy
 deploy:
 	cd namespace-configuration && skaffold run --verbosity=info --profile=$(ENVIRONMENT)
+	cd rabbitmq && skaffold run --verbosity=info --profile=$(ENVIRONMENT)
