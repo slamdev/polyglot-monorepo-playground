@@ -1,0 +1,11 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+profiles:
+- name: dev
+  deploy:
+    kustomize:
+      kustomizePath: overlays/dev
+- name: prod
+  deploy:
+    kustomize:
+      kustomizePath: overlays/prod
