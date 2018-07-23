@@ -3,4 +3,4 @@ bases:
 patches:
 - ports-patch.yaml
 commonLabels:
-  lang: java
+  lang: static
