@@ -7,4 +7,4 @@ spec:
     spec:
       containers:
       - name: app
-        image: slamdev/playground-rabbitmq:prod
+        image: slamdev/playground-rabbitmq

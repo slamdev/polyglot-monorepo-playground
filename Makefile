@@ -113,3 +113,14 @@ define _validate_minifest
 	kustomize build $(1) | kubectl apply --dry-run=true --validate=true -f -;
 endef
 export validate_minifest = $(value _validate_minifest)
+
+##
+## Get the newest image id by name from skaffold.yaml, tag it and push it
+##
+define _tag_n_push
+	$(eval IMAGE_NAME := `sed -n -e 's/^.*imageName: //p' $(1)/skaffold.yaml`)
+	set -e;\
+	docker tag $$(docker images -q $(IMAGE_NAME) | head -n 1) $(IMAGE_NAME):$(2);\
+	docker push $(IMAGE_NAME):$(2);
+endef
+export tag_n_push = $(value _tag_n_push)

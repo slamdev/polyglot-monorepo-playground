@@ -7,4 +7,4 @@ spec:
     spec:
       containers:
       - name: app
-        image: slamdev/playground-svc-js:latest
+        image: slamdev/playground-svc-js

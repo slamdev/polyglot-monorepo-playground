@@ -2,7 +2,7 @@
 
 Issues to resolve:
 
-- Skaffold is not tagging images with `latest` and `prod`. Workaround could be adding a separate step after 
+- **SOLVED**: Skaffold is not tagging images with `latest` and `prod`. Workaround could be adding a separate step after 
 `skaffold run`, that will parse output from `docker images --format "{{.ID}}: {{.CreatedAt}} {{.Digest}}" IMAGE_NAME`,
 get newest image ID, tag it with `latest` or `prod` and push it
 

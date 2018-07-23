@@ -15,3 +15,4 @@ build:
 deploy:
 	cd namespace-configuration && skaffold run --verbosity=info --profile=$(ENVIRONMENT)
 	cd rabbitmq && skaffold run --verbosity=info --profile=$(ENVIRONMENT)
+	$(call tag_n_push,rabbitmq,$(ENVIRONMENT))
