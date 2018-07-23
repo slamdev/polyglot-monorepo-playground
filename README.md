@@ -12,3 +12,6 @@ skaffold with this output
 
 - Validate k8s manifests during the `check` phase. One option is to generate manifests via kustomize and run
 `kubectl apply --dry-run=true --validate=true`
+
+- Skaffold doesn't verify that deployment\sts succeeded. Workaround could be executing `kubectl rollout status` on 
+output from `kubectl get deploy,sts -nplayground-dev` after `skaffold run`
