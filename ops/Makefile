@@ -4,7 +4,8 @@ clean:
 
 .PHONY: check
 check:
-	@echo "ops-check $(ENVIRONMENT)"
+	$(call validate_minifest,namespace-configuration)
+	$(call validate_minifest,registry-ui/k8s)
 
 .PHONY: build
 build:

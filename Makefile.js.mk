@@ -11,7 +11,9 @@ install:
 .PHONY: check
 check: install
 	cd apps/app1 && yarn run test
+	$(call validate_minifest,apps/app1/deploy/k8s/overlays/$(ENVIRONMENT))
 	cd services/svc-js && yarn run test
+	$(call validate_minifest,services/svc-js/deploy/k8s/overlays/$(ENVIRONMENT))
 
 .PHONY: build
 build:

@@ -4,7 +4,8 @@ clean:
 
 .PHONY: check
 check:
-	@echo "infra-check $(ENVIRONMENT)"
+	$(call validate_minifest,namespace-configuration/overlays/$(ENVIRONMENT))
+	$(call validate_minifest,rabbitmq/k8s/overlays/$(ENVIRONMENT))
 
 .PHONY: build
 build:

@@ -5,6 +5,7 @@ clean:
 .PHONY: check
 check:
 	cd services/svc-java && ./gradlew check --console=plain --no-daemon
+	$(call validate_minifest,services/svc-java/deploy/k8s/overlays/$(ENVIRONMENT))
 
 .PHONY: build
 build:

@@ -104,3 +104,12 @@ define _rollout_statuses
     done
 endef
 export rollout_statuses = $(value _rollout_statuses)
+
+##
+## Build manifest via kustomize and validate it via kubectl
+##
+define _validate_minifest
+	set -e;\
+	kustomize build $(1) | kubectl apply --dry-run=true --validate=true -f -;
+endef
+export validate_minifest = $(value _validate_minifest)

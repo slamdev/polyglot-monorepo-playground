@@ -10,7 +10,7 @@ get newest image ID, tag it with `latest` or `prod` and push it
 running kustomize before skaffold, store output in `build` directory, replace `namespace` field via `sed` and run
 skaffold with this output
 
-- Validate k8s manifests during the `check` phase. One option is to generate manifests via kustomize and run
+- **SOLVED**: Validate k8s manifests during the `check` phase. One option is to generate manifests via kustomize and run
 `kubectl apply --dry-run=true --validate=true`
 
 - **SOLVED**: Skaffold doesn't verify that deployment\sts succeeded. Workaround could be executing `kubectl rollout status` on 
