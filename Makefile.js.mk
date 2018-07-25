@@ -22,9 +22,11 @@ build:
 
 .PHONY: deploy
 deploy:
+	$(call prepare_review_app_if_needed,$(ENVIRONMENT),$(BRANCH),apps/app1,deploy/k8s/overlays/$(ENVIRONMENT))
 	cd apps/app1 && skaffold run --verbosity=info --profile=$(ENVIRONMENT)
 	$(call rollout_status,app1-app,$(PROJECT)-$(ENVIRONMENT))
 	$(call tag_n_push,apps/app1,$(ENVIRONMENT))
+	$(call prepare_review_app_if_needed,$(ENVIRONMENT),$(BRANCH),services/svc-js,deploy/k8s/overlays/$(ENVIRONMENT))
 	cd services/svc-js && skaffold run --verbosity=info --profile=$(ENVIRONMENT)
 	$(call rollout_status,svc-js-app,$(PROJECT)-$(ENVIRONMENT))
 	$(call tag_n_push,services/svc-js,$(ENVIRONMENT))

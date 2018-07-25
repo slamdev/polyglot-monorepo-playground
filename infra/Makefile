@@ -1,6 +1,7 @@
 .PHONY: clean
 clean:
-	@echo "infra-clean $(ENVIRONMENT)"
+	rm -rf namespace-configuration/build
+	rm -rf rabbitmq/build
 
 .PHONY: check
 check:
@@ -13,6 +14,8 @@ build:
 
 .PHONY: deploy
 deploy:
+	$(call prepare_review_app_if_needed,$(ENVIRONMENT),$(BRANCH),namespace-configuration,overlays/$(ENVIRONMENT))
 	cd namespace-configuration && skaffold run --verbosity=info --profile=$(ENVIRONMENT)
+	$(call prepare_review_app_if_needed,$(ENVIRONMENT),$(BRANCH),rabbitmq,k8s/overlays/$(ENVIRONMENT))
 	cd rabbitmq && skaffold run --verbosity=info --profile=$(ENVIRONMENT)
 	$(call tag_n_push,rabbitmq,$(ENVIRONMENT))

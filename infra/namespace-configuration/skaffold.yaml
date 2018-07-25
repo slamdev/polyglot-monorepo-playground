@@ -9,3 +9,9 @@ profiles:
   deploy:
     kustomize:
       kustomizePath: overlays/prod
+- name: review
+  deploy:
+    kubectl:
+      manifests:
+      - build/review-app.yaml
+    kustomize: {}

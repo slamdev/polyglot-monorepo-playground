@@ -13,6 +13,7 @@ build:
 
 .PHONY: deploy
 deploy:
+	$(call prepare_review_app_if_needed,$(ENVIRONMENT),$(BRANCH),services/svc-java,deploy/k8s/overlays/$(ENVIRONMENT))
 	cd services/svc-java && skaffold run --verbosity=info --profile=$(ENVIRONMENT)
 	$(call rollout_status,svc-java-app,$(PROJECT)-$(ENVIRONMENT))
 	$(call tag_n_push,services/svc-java,$(ENVIRONMENT))

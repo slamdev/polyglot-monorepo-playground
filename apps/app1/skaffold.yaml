@@ -17,3 +17,9 @@ profiles:
   deploy:
     kustomize:
       kustomizePath: deploy/k8s/overlays/prod
+- name: review
+  deploy:
+    kubectl:
+      manifests:
+      - build/review-app.yaml
+    kustomize: {}
