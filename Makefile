@@ -1,10 +1,26 @@
 SHELL = /bin/bash
 
+##
+## Command-line args
+##
 e = dev
-# these variables will be accesible from sub-makefiles
-export ENVIRONMENT := $(e)
-export BRANCH := $(b)
-export PROJECT := playground
+b =
+##
+## Global variables
+##
+PROJECT := playground
+export PROJECT
+BRANCH := $(b)
+export BRANCH
+ifdef BRANCH
+	ENVIRONMENT := review
+	NAMESPACE := $(PROJECT)-$(ENVIRONMENT)-$(BRANCH)
+else
+	ENVIRONMENT := $(e)
+	NAMESPACE := $(PROJECT)-$(ENVIRONMENT)
+endif
+export ENVIRONMENT
+export NAMESPACE
 
 MODULES := etc ops infra js java
 CLEAN_TARGETS := $(foreach m,$(MODULES),clean-$(m))
@@ -61,13 +77,11 @@ deploy-%: build-%
 deploy: $(DEPLOY_TARGETS)
 
 .PHONY: create-reviewapp
-create-reviewapp: ENVIRONMENT := review
 create-reviewapp: deploy-infra deploy-js deploy-java
 
 .PHONY: drop-reviewapp
-drop-reviewapp: ENVIRONMENT := review
 drop-reviewapp:
-	kubectl delete ns $(PROJECT)-$(ENVIRONMENT)-$(BRANCH)
+	kubectl delete ns $(NAMESPACE)
 
 ##
 ## Run make COMMAND -f MAKEFILE for special cases
@@ -98,9 +112,8 @@ endef
 ## Get rollout status of single deployment in namespace
 ##
 define _rollout_status
-	$(eval NS := `[ "$(ENVIRONMENT)" = "review" ] && echo $(2)-$(BRANCH) || echo $(2)`)
 	set -e;\
-	kubectl rollout status deploy $(1) -n$(NS);
+	kubectl rollout status deploy $(1) -n$(NAMESPACE);
 endef
 export rollout_status = $(value _rollout_status)
 
@@ -108,12 +121,10 @@ export rollout_status = $(value _rollout_status)
 ## Get rollout status of all deployments in namespace
 ##
 define _rollout_statuses
-	$(eval NS := `[ "$(ENVIRONMENT)" = "review" ] && echo $(1)-$(BRANCH) || echo $(1)`)
-	$(eval DEPLOYS := `kubectl get deploy -o jsonpath='{.items[*].metadata.name}' -n$(NS)`)
+	$(eval DEPLOYS := `kubectl get deploy -o jsonpath='{.items[*].metadata.name}' -n$(NAMESPACE)`)
 	for app in $(DEPLOYS); do\
         set -e;\
-        kubectl rollout status deploy $$app -n$(NS);\
-        fi;\
+        kubectl rollout status deploy $$app -n$(NAMESPACE);\
     done
 endef
 export rollout_statuses = $(value _rollout_statuses)
@@ -134,20 +145,22 @@ define _tag_n_push
 	$(eval IMAGE_NAME := `sed -n -e 's/^.*imageName: //p' $(1)/skaffold.yaml`)
 	set -e;\
 	docker tag $$(docker images -q $(IMAGE_NAME) | head -n 1) $(IMAGE_NAME):$(2);\
-	docker push $(IMAGE_NAME):$(2);
+	docker push $(IMAGE_NAME):$(ENVIRONMENT);
 endef
 export tag_n_push = $(value _tag_n_push)
 
 ##
-## If env is review, generate k8s manifest in build dir
+## If is review app, generate k8s manifest in build dir replacing the namespace
 ##
 define _prepare_review_app_if_needed
-	if [ "$(1)" = "review" ]; then\
-		mkdir -p $(3)/build; \
-		kustomize build $(3)/$(4) \
-		| sed 's/namespace: playground-dev/namespace: playground-review-$(2)/g' \
-		| tr '\n' '\f' | sed "s/metadata:$$(printf '\f')  name: playground-dev/metadata:$$(printf '\f')  name: playground-review-$(2)/g" | tr '\f' '\n' \
-		> $(3)/build/review-app.yaml; \
+	if [ -n "$(BRANCH)" ]; then\
+		mkdir -p $(1)/build; \
+		kustomize build $(1)/$(2) \
+		| sed 's/\(namespace: \).*/\1$(NAMESPACE)/g' \
+		| tr '\n' '\f' \
+		| sed "s/\(.*kind: Namespace$$(printf '\f')metadata:$$(printf '\f')  name: \)[[:print:]]*\(.*\)/\1$(NAMESPACE)\2/g" \
+		| tr '\f' '\n' \
+		> $(1)/build/review-app.yaml; \
 	fi
 endef
 export prepare_review_app_if_needed = $(value _prepare_review_app_if_needed)

@@ -1,14 +1,11 @@
 .PHONY: clean
-clean:
-	@echo "etc-clean $(ENVIRONMENT)"
+clean: ;
 
 .PHONY: check
-check:
-	@echo "etc-check $(ENVIRONMENT)"
+check: ;
 
 .PHONY: build
-build:
-	@echo "etc-build $(ENVIRONMENT)"
+build: ;
 
 .PHONY: deploy
 deploy:
