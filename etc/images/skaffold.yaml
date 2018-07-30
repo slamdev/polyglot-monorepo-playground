@@ -1,0 +1,25 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  tagPolicy:
+    envTemplate:
+      template: "{{.IMAGE_NAME}}:latest"
+  artifacts:
+  - imageName: slamdev/playground-builder-base
+    workspace: builders/base
+  - imageName: slamdev/playground-builder-java
+    workspace: builders/java
+  - imageName: slamdev/playground-builder-js
+    workspace: builders/js
+  - imageName: slamdev/playground-dind
+    workspace: dind
+  - imageName: slamdev/playground-gitlab-runner-helper
+    workspace: gitlab-runner/helper
+  - imageName: slamdev/playground-gitlab-registrator
+    workspace: gitlab-runner/registrator
+  - imageName: slamdev/playground-gitlab-runner
+    workspace: gitlab-runner/runner
+  - imageName: slamdev/playground-postgres-backupper
+    workspace: postgres-backupper
+deploy:
+  kubectl: {}

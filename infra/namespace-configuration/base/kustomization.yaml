@@ -1,1 +1,2 @@
-# Some common secrets\configmaps can be placed here
+resources:
+- some-secret.yaml

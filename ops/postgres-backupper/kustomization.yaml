@@ -1,0 +1,12 @@
+bases:
+- ../../etc/k8s/cronjob/base
+patches:
+- schedule-patch.yaml
+- image-patch.yaml
+- resources-patch.yaml
+- env-patch.yaml
+- volume-patch.yaml
+commonLabels:
+  name: postgres-backupper
+namePrefix: postgres-backupper-
+namespace: playground-ops

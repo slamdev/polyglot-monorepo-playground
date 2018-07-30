@@ -1,0 +1,7 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cronjob
+spec:
+  schedule: "0 4 * * *"
+  concurrencyPolicy: Forbid

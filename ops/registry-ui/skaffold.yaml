@@ -5,9 +5,7 @@ build:
     sha256: {}
   artifacts:
   - imageName: slamdev/playground-registry-ui
-    workspace: .
-    docker:
-      dockerfilePath: docker/Dockerfile
+    workspace: docker
 deploy:
   kustomize:
     kustomizePath: k8s

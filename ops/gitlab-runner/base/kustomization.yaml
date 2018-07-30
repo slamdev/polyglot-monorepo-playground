@@ -1,0 +1,14 @@
+bases:
+- ../../../etc/k8s/deployment/overlays/generic/base
+resources:
+- service-account.yaml
+patches:
+- image-patch.yaml
+- strategy-patch.yaml
+- resources-patch.yaml
+- service-account-patch.yaml
+- config-patch.yaml
+- init-container-patch.yaml
+commonLabels:
+  name: gitlab-runner
+namespace: playground-ops

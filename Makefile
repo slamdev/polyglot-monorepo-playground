@@ -4,7 +4,7 @@ SHELL = /bin/bash
 ## Command-line args
 ##
 e = dev
-b =
+b = master
 ##
 ## Global variables
 ##
@@ -12,9 +12,11 @@ PROJECT := playground
 export PROJECT
 BRANCH := $(b)
 export BRANCH
-ifdef BRANCH
+ifneq ($(BRANCH), master)
+ifneq ($(BRANCH), prod)
 	ENVIRONMENT := review
 	NAMESPACE := $(PROJECT)-$(ENVIRONMENT)-$(BRANCH)
+endif
 else
 	ENVIRONMENT := $(e)
 	NAMESPACE := $(PROJECT)-$(ENVIRONMENT)
@@ -44,7 +46,7 @@ help:
 	@echo "    deploy             run deploy task for all modules"
 	@echo "    deploy-%           run deploy task for a specific modules"
 	@echo "Envinronment can be passed via e=[env] argument, e.g.:"
-	$(call colorecho,"    make deploy-java e=prod")
+	@echo "    make deploy-java e=prod"
 	@echo "Default environment is [dev]"
 	@echo ""
 
@@ -91,21 +93,12 @@ define exec_module
 	$(eval COMMAND := $(firstword $(subst -, ,$(1))))
 	$(eval CURRENT_MODULE := $(lastword $(subst -, ,$(1))))
 	$(eval SPECIAL_MAKEFILE := $(MODULE_$(CURRENT_MODULE)))
-	$(call colorecho,"Running [$(COMMAND)] command in [$(CURRENT_MODULE)] module for [$(ENVIRONMENT)] environment")
+	@echo "Running [$(COMMAND)] command in [$(CURRENT_MODULE)] module for [$(ENVIRONMENT)] environment"
 	@if [ "$(SPECIAL_MAKEFILE)" = "" ]; then\
 		$(MAKE) $(COMMAND) -C $(CURRENT_MODULE);\
 	else\
 		$(MAKE) $(COMMAND) -f $(SPECIAL_MAKEFILE);\
 	fi
-endef
-
-##
-## Echo text in cyan color
-##
-define colorecho
-	@tput setaf 6
-	@echo $1
-	@tput sgr0
 endef
 
 ##
@@ -142,9 +135,9 @@ export validate_minifest = $(value _validate_minifest)
 ## Get the newest image id by name from skaffold.yaml, tag it and push it
 ##
 define _tag_n_push
-	$(eval IMAGE_NAME := `sed -n -e 's/^.*imageName: //p' $(1)/skaffold.yaml`)
+	$(eval IMAGE_NAME := `sed -n -e 's/^.*imageName: \(.*$(2)$$$$\)/\1/p' $(1)/skaffold.yaml | head -n 1`)
 	set -e;\
-	docker tag $$(docker images -q $(IMAGE_NAME) | head -n 1) $(IMAGE_NAME):$(2);\
+	docker tag $$(docker images -q $(IMAGE_NAME) | head -n 1) $(IMAGE_NAME):$(ENVIRONMENT);\
 	docker push $(IMAGE_NAME):$(ENVIRONMENT);
 endef
 export tag_n_push = $(value _tag_n_push)
@@ -153,7 +146,7 @@ export tag_n_push = $(value _tag_n_push)
 ## If is review app, generate k8s manifest in build dir replacing the namespace
 ##
 define _prepare_review_app_if_needed
-	if [ -n "$(BRANCH)" ]; then\
+	if [ "$(ENVIRONMENT)" = "review" ]; then\
 		mkdir -p $(1)/build; \
 		kustomize build $(1)/$(2) \
 		| sed 's/\(namespace: \).*/\1$(NAMESPACE)/g' \

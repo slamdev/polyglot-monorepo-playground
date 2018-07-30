@@ -1,0 +1,18 @@
+bases:
+- ../../base
+patches:
+- config-patch.yaml
+namePrefix: gitlab-runner-c1-
+namespace: playground-ops
+configMapGenerator:
+- name: config
+  files:
+  - config.toml
+- name: registration-config
+  literals:
+  - PERSONAL_ACCESS_TOKENS=asdqwe
+  - REGISTRATION_TOKEN=asdqwe
+  - RUNNER_NAME=playground-c1-runner
+  - RUNNER_TAG_LIST=playground,c1
+  - CI_SERVER_URL=https://gitlab.example.com
+  - CONFIG_FILE=/etc/gitlab-runner-root/config.toml

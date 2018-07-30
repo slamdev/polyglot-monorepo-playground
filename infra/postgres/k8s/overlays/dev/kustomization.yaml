@@ -1,0 +1,8 @@
+bases:
+- ../../../../../etc/k8s/service/overlays/generic/overlays/dev
+- ../../base
+patches:
+- type-patch.yaml
+commonLabels:
+  name: postgres
+namePrefix: postgres-

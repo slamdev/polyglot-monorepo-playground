@@ -4,11 +4,6 @@ metadata:
   name: app
 spec:
   replicas: 1
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 50%
-      maxUnavailable: 50%
   template:
     spec:
       containers:

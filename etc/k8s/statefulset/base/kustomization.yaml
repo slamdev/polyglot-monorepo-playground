@@ -1,4 +1,2 @@
 resources:
 - statefulset.yaml
-commonLabels:
-  project: playground

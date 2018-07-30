@@ -1,0 +1,128 @@
+stages:
+- etc
+- ops
+- infra
+- apps
+- review
+
+.k8s: &k8s
+  tags:
+  - playground
+  - c1
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+  services:
+  - slamdev/playground-dind
+  before_script:
+  - unset KUBECONFIG
+
+.dev: &dev
+  environment:
+    name: dev
+    url: https://dev.example.com
+  only:
+  - master
+
+.prod: &prod
+  environment:
+    name: prod
+    url: https://prod.example.com
+  only:
+  - prod
+
+.review: &review
+  tags:
+  - playground
+  - c10
+  environment:
+    name: review/$CI_BUILD_REF_NAME
+    url: http://$CI_BUILD_REF_SLUG.example.com
+    on_stop: stop
+  only:
+  - branches
+  except:
+  - master
+  - prod
+
+etc:
+  <<: *k8s
+  stage: etc
+  image: slamdev/playground-builder-base
+  script: make deploy-etc
+  only:
+  - master
+
+ops:
+  <<: *k8s
+  stage: ops
+  image: slamdev/playground-builder-base
+  script: make deploy-ops
+  only:
+  - master
+
+.infra: &infra
+  <<: *k8s
+  stage: infra
+  image: slamdev/playground-builder-base
+  script: make deploy-infra e=${CI_ENVIRONMENT_NAME} b=${CI_BUILD_REF_SLUG}
+
+infra-dev:
+  <<: *infra
+  <<: *dev
+
+infra-prod:
+  <<: *infra
+  <<: *prod
+
+infra-review:
+  <<: *infra
+  <<: *review
+
+.java: &java
+  <<: *k8s
+  stage: apps
+  image: slamdev/playground-builder-java
+  script: make deploy-java e=${CI_ENVIRONMENT_NAME} b=${CI_BUILD_REF_SLUG}
+
+java-dev:
+  <<: *java
+  <<: *dev
+
+java-prod:
+  <<: *java
+  <<: *prod
+
+java-review:
+  <<: *java
+  <<: *review
+
+.js: &js
+  <<: *k8s
+  stage: apps
+  image: slamdev/playground-builder-js
+  script: make deploy-js e=${CI_ENVIRONMENT_NAME} b=${CI_BUILD_REF_SLUG}
+
+js-dev:
+  <<: *js
+  <<: *dev
+
+js-prod:
+  <<: *js
+  <<: *prod
+
+js-review:
+  <<: *js
+  <<: *review
+
+stop:
+  <<: *k8s
+  <<: *review
+  stage: review
+  image: slamdev/playground-builder-base
+  script: kubectl delete ns playground-review-$CI_BUILD_REF_SLUG
+  variables:
+    GIT_STRATEGY: none
+  when: manual
+  environment:
+    name: review/$CI_BUILD_REF_NAME
+    action: stop

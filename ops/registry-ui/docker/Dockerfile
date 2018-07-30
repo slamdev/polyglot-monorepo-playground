@@ -1,3 +1,3 @@
-FROM quiq/docker-registry-ui
+FROM quiq/docker-registry-ui:0.7.1
 
-ADD ["docker/config.yml", "/opt/config.yml"]
+COPY config.yml /opt/config.yml

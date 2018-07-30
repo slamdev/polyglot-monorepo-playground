@@ -3,8 +3,8 @@ kind: Deployment
 metadata:
   name: app
 spec:
-  replicas: 3
   strategy:
+    type: RollingUpdate
     rollingUpdate:
-      maxSurge: 200%
-      maxUnavailable: 1
+      maxSurge: 50%
+      maxUnavailable: 50%

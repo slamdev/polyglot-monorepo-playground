@@ -1,3 +1,4 @@
 resources:
 - namespace.yaml
-# Some common secrets\configmaps can be placed here
+- some-secret.yaml
+namespace: playground-ops

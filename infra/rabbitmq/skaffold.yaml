@@ -5,9 +5,7 @@ build:
     sha256: {}
   artifacts:
   - imageName: slamdev/playground-rabbitmq
-    workspace: .
-    docker:
-      dockerfilePath: docker/Dockerfile
+    workspace: docker
 profiles:
 - name: dev
   deploy:

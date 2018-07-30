@@ -1,4 +1,2 @@
 resources:
 - service.yaml
-commonLabels:
-  project: playground
