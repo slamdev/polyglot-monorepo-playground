@@ -1,0 +1,9 @@
+bases:
+- ../../../../etc/k8s/deployment/overlays/node/overlays/dev
+- ../../../../etc/k8s/service/overlays/node/overlays/dev
+- ../
+patches:
+- image-patch.yaml
+commonLabels:
+  name: svc-js
+namePrefix: svc-js-

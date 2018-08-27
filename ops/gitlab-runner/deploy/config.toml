@@ -1,0 +1,34 @@
+concurrent = 10
+
+[[runners]]
+  name = "playground-runner"
+  url = "https://example.com/"
+  token = "_TOKEN_"
+  executor = "kubernetes"
+  [runners.kubernetes]
+    namespace = "playground-ops"
+    image = "alpine"
+    cpu_limit = "8"
+    memory_limit = "16Gi"
+    service_cpu_limit = "1"
+    service_memory_limit = "1Gi"
+    helper_cpu_limit = "1"
+    helper_memory_limit = "1Gi"
+    cpu_request = "8"
+    memory_request = "16Gi"
+    service_cpu_request =  "1"
+    service_memory_request = "1Gi"
+    helper_cpu_request =  "1"
+    helper_memory_request = "1Gi"
+    pull_policy = "always"
+    helper_image = "slamdev/playground-gitlab-runner-helper:latest"
+    terminationGracePeriodSeconds = 30
+    privileged = true
+  [runners.cache]
+    Type = "s3"
+    ServerAddress = "minio.gitlab-runner.svc.cluster.local"
+    Insecure = true
+    AccessKey = "minio"
+    SecretKey = "minio123"
+    BucketName = "cache"
+    Shared = true

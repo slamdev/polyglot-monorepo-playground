@@ -1,0 +1,15 @@
+bases:
+- ../../../../etc/k8s/statefulset/overlays/prod
+- ../../../../etc/k8s/service/overlays/generic/overlays/prod
+- ../
+patches:
+- env-patch.yaml
+- image-patch.yaml
+- ports-patch.yaml
+- probes-patch.yaml
+- resources-patch.yaml
+- servicename-patch.yaml
+- replicas-patch.yaml
+commonLabels:
+  name: rabbitmq
+namePrefix: rabbitmq-

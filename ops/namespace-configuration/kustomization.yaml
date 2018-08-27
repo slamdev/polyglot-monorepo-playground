@@ -1,4 +1,0 @@
-resources:
-- namespace.yaml
-- some-secret.yaml
-namespace: playground-ops

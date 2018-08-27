@@ -1,5 +1,0 @@
-bases:
-- ../../base
-resources:
-- namespace.yaml
-namespace: playground-prod

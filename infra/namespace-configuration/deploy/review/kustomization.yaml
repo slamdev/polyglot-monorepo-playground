@@ -1,0 +1,5 @@
+bases:
+- ../
+resources:
+- namespace.yaml
+namespace: playground-review

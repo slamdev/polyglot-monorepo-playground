@@ -1,0 +1,43 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  tagPolicy:
+    sha256: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - imageName: slamdev/playground-elasticsearch
+      workspace: deploy
+      docker:
+        cacheFrom:
+        - docker.elastic.co/elasticsearch/elasticsearch:6.4.0
+        - slamdev/playground-elasticsearch:dev
+  deploy:
+    kustomize:
+      kustomizePath: deploy/dev
+- name: prod
+  build:
+    artifacts:
+    - imageName: slamdev/playground-elasticsearch
+      workspace: deploy
+      docker:
+        cacheFrom:
+        - docker.elastic.co/elasticsearch/elasticsearch:6.4.0
+        - slamdev/playground-elasticsearch:prod
+  deploy:
+    kustomize:
+      kustomizePath: deploy/prod
+- name: review
+  build:
+    artifacts:
+    - imageName: slamdev/playground-elasticsearch
+      workspace: deploy
+      docker:
+        cacheFrom:
+        - docker.elastic.co/elasticsearch/elasticsearch:6.4.0
+        - slamdev/playground-elasticsearch:review
+  deploy:
+    kubectl:
+      manifests:
+      - build/review-app.yaml

@@ -5,7 +5,11 @@ build:
     sha256: {}
   artifacts:
   - imageName: slamdev/playground-registry-ui
-    workspace: docker
+    workspace: deploy
+    docker:
+      cacheFrom:
+      - quiq/docker-registry-ui:0.7.1
+      - slamdev/playground-registry-ui:ops
 deploy:
   kustomize:
-    kustomizePath: k8s
+    kustomizePath: deploy

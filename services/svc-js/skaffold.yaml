@@ -3,23 +3,41 @@ kind: Config
 build:
   tagPolicy:
     sha256: {}
-  artifacts:
-  - imageName: slamdev/playground-svc-js
-    workspace: .
-    docker:
-      dockerfilePath: deploy/docker/Dockerfile
 profiles:
 - name: dev
+  build:
+    artifacts:
+    - imageName: slamdev/playground-svc-js
+      docker:
+        dockerfilePath: deploy/Dockerfile
+        cacheFrom:
+        - node:10-alpine
+        - slamdev/playground-svc-js:dev
   deploy:
     kustomize:
-      kustomizePath: deploy/k8s/overlays/dev
+      kustomizePath: deploy/dev
 - name: prod
+  build:
+    artifacts:
+    - imageName: slamdev/playground-svc-js
+      docker:
+        dockerfilePath: deploy/Dockerfile
+        cacheFrom:
+        - node:10-alpine
+        - slamdev/playground-svc-js:prod
   deploy:
     kustomize:
-      kustomizePath: deploy/k8s/overlays/prod
+      kustomizePath: deploy/prod
 - name: review
+  build:
+    artifacts:
+    - imageName: slamdev/playground-svc-js
+      docker:
+        dockerfilePath: deploy/Dockerfile
+        cacheFrom:
+        - node:10-alpine
+        - slamdev/playground-svc-js:review
   deploy:
     kubectl:
       manifests:
       - build/review-app.yaml
-    kustomize: {}

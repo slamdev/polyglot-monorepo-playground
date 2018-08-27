@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app
+spec:
+  template:
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+      - name: init
+        securityContext:
+          privileged: true
+      containers:
+      - name: app
+        securityContext:
+          privileged: true
+          runAsUser: 1000
+          capabilities:
+            add:
+            - IPC_LOCK
+            - SYS_RESOURC

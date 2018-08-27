@@ -1,4 +1,5 @@
 apiVersion: skaffold/v1alpha2
 kind: Config
 deploy:
-  kustomize: {}
+  kustomize:
+    kustomizePath: deploy

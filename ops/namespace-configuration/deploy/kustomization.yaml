@@ -1,0 +1,4 @@
+resources:
+- namespace.yaml
+- ceph-secret.yaml
+namespace: playground-ops

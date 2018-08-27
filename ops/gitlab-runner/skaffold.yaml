@@ -1,11 +1,21 @@
 apiVersion: skaffold/v1alpha2
 kind: Config
-profiles:
-- name: c1
-  deploy:
-    kustomize:
-      kustomizePath: overlays/c1
-- name: c10
-  deploy:
-    kustomize:
-      kustomizePath: overlays/c10
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+  - imageName: slamdev/playground-gitlab-registrator
+    workspace: deploy/docker/registrator
+    docker:
+      cacheFrom:
+      - alpine
+      - slamdev/playground-gitlab-registrator:ops
+  - imageName: slamdev/playground-gitlab-runner
+    workspace: deploy/docker/runner
+    docker:
+      cacheFrom:
+      - gitlab/gitlab-runner:alpine
+      - slamdev/playground-gitlab-runner:ops
+deploy:
+  kustomize:
+    kustomizePath: deploy

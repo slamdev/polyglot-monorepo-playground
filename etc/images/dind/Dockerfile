@@ -1,1 +1,3 @@
-FROM docker:18.06-dind
+FROM docker:dind
+
+CMD ["--storage-driver=overlay2", "--experimental"]

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app
+spec:
+  template:
+    spec:
+      containers:
+      - name: app
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+          subPath: postgres
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+      annotations:
+        volume.beta.kubernetes.io/storage-class: ssdpool
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 4Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job
+spec:
+  template:
+    spec:
+      containers:
+      - name: app
+        volumeMounts:
+        - name: backups
+          mountPath: /etc/backups
+          subPath: postgres-backups
+      volumes:
+      - name: backups
+        cephfs:
+          monitors:
+          - 10.10.10.1:6789
+          - 10.10.10.2:6789
+          - 10.10.10.3:6789
+          user: admin
+          path: /playground
+          secretRef:
+            name: ceph-secret
+          readOnly: false

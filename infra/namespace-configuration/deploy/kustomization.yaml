@@ -1,0 +1,3 @@
+resources:
+- ceph-secret-kube.yaml
+- ceph-secret.yaml

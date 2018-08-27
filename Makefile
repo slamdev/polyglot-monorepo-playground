@@ -4,156 +4,179 @@ SHELL = /bin/bash
 ## Command-line args
 ##
 e = dev
-b = master
-##
-## Global variables
-##
+
 PROJECT := playground
-export PROJECT
-BRANCH := $(b)
-export BRANCH
-ifneq ($(BRANCH), master)
-ifneq ($(BRANCH), prod)
+# If $(e) starts from review, it is a review environment and it will be appended to NAMESPACE
+ifeq ($(shell grep -o "^review" <<< $(e)), review)
 	ENVIRONMENT := review
-	NAMESPACE := $(PROJECT)-$(ENVIRONMENT)-$(BRANCH)
-endif
+	NAMESPACE := $(PROJECT)-$(ENVIRONMENT)-$(shell cut -d "/" -f 2 <<< $(e))
 else
 	ENVIRONMENT := $(e)
 	NAMESPACE := $(PROJECT)-$(ENVIRONMENT)
 endif
-export ENVIRONMENT
-export NAMESPACE
-
-MODULES := etc ops infra js java
-CLEAN_TARGETS := $(foreach m,$(MODULES),clean-$(m))
-CHECK_TARGETS := $(foreach m,$(MODULES),check-$(m))
-BUILD_TARGETS := $(foreach m,$(MODULES),build-$(m))
-DEPLOY_TARGETS := $(foreach m,$(MODULES),deploy-$(m))
-# special cases
-MODULE_java := Makefile.java.mk
-MODULE_js := Makefile.js.mk
-
-.PHONY: help
-help:
-	@echo ""
-	@echo "Available tasks:"
-	@echo "    clean              run clean task for all modules"
-	@echo "    clean-%            run clean task for a specific modules"
-	@echo "    check              run check task for all modules"
-	@echo "    check-%            run check task for a specific modules"
-	@echo "    build              run build task for all modules"
-	@echo "    build-%            run build task for a specific modules"
-	@echo "    deploy             run deploy task for all modules"
-	@echo "    deploy-%           run deploy task for a specific modules"
-	@echo "Envinronment can be passed via e=[env] argument, e.g.:"
-	@echo "    make deploy-java e=prod"
-	@echo "Default environment is [dev]"
-	@echo ""
-
-.PHONY: clean-%
-clean-%:
-	$(call exec_module,$@)
-
-.PHONY: clean
-clean: $(CLEAN_TARGETS)
-
-.PHONY: check-%
-check-%:
-	$(call exec_module,$@)
-
-.PHONY: check
-check: $(CHECK_TARGETS)
-
-.PHONY: build-%
-build-%: check-%
-	$(call exec_module,$@)
-
-.PHONY: build
-build: $(BUILD_TARGETS)
-
-.PHONY: deploy-%
-deploy-%: build-%
-	$(call exec_module,$@)
-
-.PHONY: deploy
-deploy: $(DEPLOY_TARGETS)
-
-.PHONY: create-reviewapp
-create-reviewapp: deploy-infra deploy-js deploy-java
-
-.PHONY: drop-reviewapp
-drop-reviewapp:
-	kubectl delete ns $(NAMESPACE)
 
 ##
-## Run make COMMAND -f MAKEFILE for special cases
-## or make COMMAND -C DIR for general modules
+## ETC modules
 ##
-define exec_module
-	$(eval COMMAND := $(firstword $(subst -, ,$(1))))
-	$(eval CURRENT_MODULE := $(lastword $(subst -, ,$(1))))
-	$(eval SPECIAL_MAKEFILE := $(MODULE_$(CURRENT_MODULE)))
-	@echo "Running [$(COMMAND)] command in [$(CURRENT_MODULE)] module for [$(ENVIRONMENT)] environment"
-	@if [ "$(SPECIAL_MAKEFILE)" = "" ]; then\
-		$(MAKE) $(COMMAND) -C $(CURRENT_MODULE);\
-	else\
-		$(MAKE) $(COMMAND) -f $(SPECIAL_MAKEFILE);\
-	fi
+
+ETC_MODULES := $(shell find etc -name skaffold.yaml -mindepth 2 -maxdepth 2 -exec dirname {} \;)
+DEPLOY_ETC_TARGETS := $(foreach m,$(ETC_MODULES),deploy-etc/$(m))
+
+deploy-etc/%:
+	@echo "Deploying [$*]"
+	$(call pull_images_for_cache,$*)
+	cd $* && skaffold build
+
+deploy-etc: $(DEPLOY_ETC_TARGETS)
+
+##
+## OPS modules
+##
+
+OPS_MODULES := ops/namespace-configuration $(shell find ops -name skaffold.yaml -mindepth 2 -maxdepth 2 -exec dirname {} \; | grep -v 'namespace-configuration')
+DEPLOY_OPS_TARGETS := $(foreach m,$(OPS_MODULES),deploy-ops/$(m))
+
+deploy-ops/%:
+	@echo "Deploying [$*] to $(NAMESPACE)"
+	$(call pull_images_for_cache,$*)
+	cd $* && skaffold run
+	$(call verify_deployment_status,$*)
+	$(call tag_n_push,$*)
+
+deploy-ops: $(DEPLOY_OPS_TARGETS)
+
+##
+## INFRA modules
+##
+
+INFRA_MODULES := infra/namespace-configuration $(shell find infra -name skaffold.yaml -mindepth 2 -maxdepth 2 -exec dirname {} \; | grep -v 'namespace-configuration')
+DEPLOY_INFRA_TARGETS := $(foreach m,$(INFRA_MODULES),deploy-infra/$(m))
+
+deploy-infra/%:
+	@echo "Deploying [$*] to $(NAMESPACE)"
+ifeq ($(ENVIRONMENT),review)
+	$(call prepare_review_app,$*)
+endif
+	$(call pull_images_for_cache,$*)
+	cd $* && skaffold run --profile=$(ENVIRONMENT)
+	$(call verify_deployment_status,$*)
+	$(call tag_n_push,$*)
+
+deploy-infra: $(DEPLOY_INFRA_TARGETS)
+
+##
+## JS modules
+##
+
+JS_MODULES := $(shell find apps services -name package.json -mindepth 2 -maxdepth 2 -exec dirname {} \;)
+BUILD_JS_TARGETS := build-js
+DEPLOY_JS_TARGETS := $(foreach m,$(JS_MODULES),deploy-js/$(m))
+
+build-js:
+	@echo "Building js"
+	npm install && npm run build
+
+deploy-js/%: build-js
+	@echo "Deploying [$*] to $(NAMESPACE)"
+ifeq ($(ENVIRONMENT),review)
+	$(call prepare_review_app,$*)
+endif
+	$(call pull_images_for_cache,$*)
+	cd $* && skaffold run --profile=$(ENVIRONMENT)
+	$(call verify_deployment_status,$*)
+	$(call tag_n_push,$*)
+
+deploy-js: $(DEPLOY_JS_TARGETS)
+
+##
+## JAVA modules
+##
+
+JAVA_MODULES := $(shell find apps services -name build.gradle -mindepth 2 -maxdepth 2 -exec dirname {} \;)
+BUILD_JAVA_TARGET := build-java
+DEPLOY_JAVA_TARGETS := $(foreach m,$(JAVA_MODULES),deploy-java/$(m))
+
+build-java:
+	@echo "Building java"
+	./gradlew build -Penv=$(ENVIRONMENT)
+
+deploy-java/%: build-java
+	@echo "Deploying [$*] to $(NAMESPACE)"
+ifeq ($(ENVIRONMENT),review)
+	$(call prepare_review_app,$*)
+endif
+	$(call pull_images_for_cache,$*)
+	cd $* && skaffold run --profile=$(ENVIRONMENT)
+	$(call verify_deployment_status,$*)
+	$(call tag_n_push,$*)
+
+deploy-java: $(DEPLOY_JAVA_TARGETS)
+
+##
+## Get `cacheFrom` values from skafold and pull corresponding images
+## Input params:
+## $(1) - path to skaffold.yaml
+## $(2) - optional profile in skaffold.yaml
+##
+define pull_images_for_cache
+	$(eval IMAGE_NAMES := `(\
+	  yq r $(1)/skaffold.yaml -j | jq -re '.profiles[]? | select(.name=="$(ENVIRONMENT)") | .build.artifacts[]?.docker.cacheFrom | .[]?' \
+	  || \
+	  yq r $(1)/skaffold.yaml -j | jq -re '.build.artifacts[]?.docker.cacheFrom | .[]?' \
+	) | sort -u`)
+	for img in $(IMAGE_NAMES); do\
+		docker pull $$img || true;\
+    done
 endef
 
 ##
-## Get rollout status of single deployment in namespace
+## Get the newest image id by name from skaffold.yaml, tag it with "latest" and push it
+## Input params:
+## $(1) - path to skaffold.yaml
 ##
-define _rollout_status
-	set -e;\
-	kubectl rollout status deploy $(1) -n$(NAMESPACE);
+define tag_n_push
+	$(eval IMAGE_NAMES := `(\
+	  yq r $(1)/skaffold.yaml -j | jq -re '.profiles[]? | select(.name=="$(ENVIRONMENT)") | .build.artifacts[]?.imageName' \
+	  || \
+	  yq r $(1)/skaffold.yaml -j | jq -re '.build.artifacts[]?.imageName' \
+	) | sort -u`)
+	for img in $(IMAGE_NAMES); do\
+		docker tag $$(docker images -q $$img | head -n 1) $$img:$(ENVIRONMENT);\
+		docker push $$img:$(ENVIRONMENT);\
+	done
 endef
-export rollout_status = $(value _rollout_status)
 
 ##
-## Get rollout status of all deployments in namespace
+## Generate k8s manifest in build dir replacing the namespace
+## Input params:
+## $(1) - path to skaffold.yaml
 ##
-define _rollout_statuses
-	$(eval DEPLOYS := `kubectl get deploy -o jsonpath='{.items[*].metadata.name}' -n$(NAMESPACE)`)
-	for app in $(DEPLOYS); do\
-        set -e;\
+define prepare_review_app
+	mkdir -p $(1)/build; \
+	kustomize build $(1)/deploy/review \
+	| sed 's/\(namespace: \).*/\1$(NAMESPACE)/g' \
+	| tr '\n' '\f' \
+	| sed "s/\(.*kind: Namespace$$(printf '\f')metadata:$$(printf '\f')  name: \)[[:print:]]*\(.*\)/\1$(NAMESPACE)\2/g" \
+	| tr '\f' '\n' \
+	> $(1)/build/review-app.yaml
+endef
+
+##
+## Get rollout status of deployments
+## Input params:
+## $(1) - path to module
+##
+define verify_deployment_status
+	$(eval DEPLOYMENTS := `(yq r -j $(1)/skaffold.yaml | jq -re '.profiles[]? | select(.name=="dev") | .deploy.kustomize.kustomizePath | select(.!=null)' \
+	  || \
+	  yq r -j $(1)/skaffold.yaml | jq -re '.deploy.kustomize.kustomizePath | select(.!=null)' \
+	  || \
+	  deploy/review) | \
+	  (echo -n $(1)/ && cat) | \
+	  xargs kustomize build | \
+	  yq r -d* -j - | \
+	  jq -re '.[] | select(.kind=="Deployment") | .metadata.name'`)
+	for app in $(DEPLOYMENTS); do\
         kubectl rollout status deploy $$app -n$(NAMESPACE);\
     done
 endef
-export rollout_statuses = $(value _rollout_statuses)
-
-##
-## Build manifest via kustomize and validate it via kubectl
-##
-define _validate_minifest
-	set -e;\
-	kustomize build $(1) | kubectl apply --dry-run=true --validate=true -f -;
-endef
-export validate_minifest = $(value _validate_minifest)
-
-##
-## Get the newest image id by name from skaffold.yaml, tag it and push it
-##
-define _tag_n_push
-	$(eval IMAGE_NAME := `sed -n -e 's/^.*imageName: \(.*$(2)$$$$\)/\1/p' $(1)/skaffold.yaml | head -n 1`)
-	set -e;\
-	docker tag $$(docker images -q $(IMAGE_NAME) | head -n 1) $(IMAGE_NAME):$(ENVIRONMENT);\
-	docker push $(IMAGE_NAME):$(ENVIRONMENT);
-endef
-export tag_n_push = $(value _tag_n_push)
-
-##
-## If is review app, generate k8s manifest in build dir replacing the namespace
-##
-define _prepare_review_app_if_needed
-	if [ "$(ENVIRONMENT)" = "review" ]; then\
-		mkdir -p $(1)/build; \
-		kustomize build $(1)/$(2) \
-		| sed 's/\(namespace: \).*/\1$(NAMESPACE)/g' \
-		| tr '\n' '\f' \
-		| sed "s/\(.*kind: Namespace$$(printf '\f')metadata:$$(printf '\f')  name: \)[[:print:]]*\(.*\)/\1$(NAMESPACE)\2/g" \
-		| tr '\f' '\n' \
-		> $(1)/build/review-app.yaml; \
-	fi
-endef
-export prepare_review_app_if_needed = $(value _prepare_review_app_if_needed)

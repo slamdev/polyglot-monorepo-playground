@@ -1,9 +1,0 @@
-bases:
-- ../../base
-- ../../../../../../etc/k8s/deployment/overlays/static/overlays/prod
-- ../../../../../../etc/k8s/service/overlays/static/overlays/prod
-patches:
-- image-patch.yaml
-commonLabels:
-  name: app1
-namePrefix: app1-

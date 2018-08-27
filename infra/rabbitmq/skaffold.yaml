@@ -3,21 +3,41 @@ kind: Config
 build:
   tagPolicy:
     sha256: {}
-  artifacts:
-  - imageName: slamdev/playground-rabbitmq
-    workspace: docker
 profiles:
 - name: dev
+  build:
+    artifacts:
+    - imageName: slamdev/playground-rabbitmq
+      workspace: deploy
+      docker:
+        cacheFrom:
+        - pivotalrabbitmq/rabbitmq-autocluster:3.6.14
+        - slamdev/playground-rabbitmq:dev
   deploy:
     kustomize:
-      kustomizePath: k8s/overlays/dev
+      kustomizePath: deploy/dev
 - name: prod
+  build:
+    artifacts:
+    - imageName: slamdev/playground-rabbitmq
+      workspace: deploy
+      docker:
+        cacheFrom:
+        - pivotalrabbitmq/rabbitmq-autocluster:3.6.14
+        - slamdev/playground-rabbitmq:prod
   deploy:
     kustomize:
-      kustomizePath: k8s/overlays/prod
+      kustomizePath: deploy/prod
 - name: review
+  build:
+    artifacts:
+    - imageName: slamdev/playground-rabbitmq
+      workspace: deploy
+      docker:
+        cacheFrom:
+        - pivotalrabbitmq/rabbitmq-autocluster:3.6.14
+        - slamdev/playground-rabbitmq:review
   deploy:
     kubectl:
       manifests:
       - build/review-app.yaml
-    kustomize: {}

@@ -8,7 +8,6 @@ stages:
 .k8s: &k8s
   tags:
   - playground
-  - c1
   variables:
     DOCKER_HOST: tcp://localhost:2375
   services:
@@ -31,9 +30,6 @@ stages:
   - prod
 
 .review: &review
-  tags:
-  - playground
-  - c10
   environment:
     name: review/$CI_BUILD_REF_NAME
     url: http://$CI_BUILD_REF_SLUG.example.com
@@ -56,15 +52,18 @@ ops:
   <<: *k8s
   stage: ops
   image: slamdev/playground-builder-base
-  script: make deploy-ops
+  script: make deploy-ops e=${CI_ENVIRONMENT_NAME}
   only:
   - master
+  environment:
+    name: ops
+    url: https://ops.example.com
 
 .infra: &infra
   <<: *k8s
   stage: infra
   image: slamdev/playground-builder-base
-  script: make deploy-infra e=${CI_ENVIRONMENT_NAME} b=${CI_BUILD_REF_SLUG}
+  script: make deploy-infra e=${CI_ENVIRONMENT_NAME}
 
 infra-dev:
   <<: *infra
@@ -82,7 +81,7 @@ infra-review:
   <<: *k8s
   stage: apps
   image: slamdev/playground-builder-java
-  script: make deploy-java e=${CI_ENVIRONMENT_NAME} b=${CI_BUILD_REF_SLUG}
+  script: make deploy-java e=${CI_ENVIRONMENT_NAME}
 
 java-dev:
   <<: *java
@@ -100,7 +99,7 @@ java-review:
   <<: *k8s
   stage: apps
   image: slamdev/playground-builder-js
-  script: make deploy-js e=${CI_ENVIRONMENT_NAME} b=${CI_BUILD_REF_SLUG}
+  script: make deploy-js e=${CI_ENVIRONMENT_NAME}
 
 js-dev:
   <<: *js

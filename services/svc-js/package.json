@@ -1,13 +1,7 @@
 {
-  "name": "app1",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
+  "name": "svc-js",
   "private": true,
   "scripts": {
-    "clean": "rm -rf build",
-    "test": "echo 'test will run here'",
-    "build": "mkdir -p build && cp src/index.js build/index.js",
-    "start": "yarn build && node build/index.js"
+    "build": "mkdir -p build && cp src/index.js build/index.js"
   }
 }

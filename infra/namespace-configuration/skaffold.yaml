@@ -4,14 +4,13 @@ profiles:
 - name: dev
   deploy:
     kustomize:
-      kustomizePath: overlays/dev
+      kustomizePath: deploy/dev
 - name: prod
   deploy:
     kustomize:
-      kustomizePath: overlays/prod
+      kustomizePath: deploy/prod
 - name: review
   deploy:
     kubectl:
       manifests:
       - build/review-app.yaml
-    kustomize: {}

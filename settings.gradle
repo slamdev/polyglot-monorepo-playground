@@ -1,0 +1,9 @@
+rootProject.name = 'polyglot-monorepo-playground'
+
+['services'].collect { file(it).listFiles() }
+        .flatten()
+        .findAll { File dir -> new File(dir, 'build.gradle').exists() }
+        .each { File file ->
+    String path = file.parentFile.name
+    include "${path}:${file.name}"
+}

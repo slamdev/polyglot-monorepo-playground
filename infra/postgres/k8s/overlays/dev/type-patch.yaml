@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: svc
-spec:
-  type: ExternalName
-  externalName: pg-dev.managed.com

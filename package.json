@@ -1,0 +1,10 @@
+{
+  "name": "polyglot-monorepo-playground",
+  "private": true,
+  "scripts": {
+    "build": "lerna run build --parallel"
+  },
+  "devDependencies": {
+    "lerna": "^3.1.4"
+  }
+}

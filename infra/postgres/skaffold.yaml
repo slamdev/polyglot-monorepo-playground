@@ -4,20 +4,29 @@ profiles:
 - name: dev
   deploy:
     kustomize:
-      kustomizePath: k8s/overlays/dev
+      kustomizePath: deploy/dev
 - name: prod
   deploy:
     kustomize:
-      kustomizePath: k8s/overlays/prod
+      kustomizePath: deploy/prod
 - name: review
   build:
     tagPolicy:
       sha256: {}
     artifacts:
     - imageName: slamdev/playground-postgres
-      workspace: docker
+      workspace: deploy/docker/postgres
+      docker:
+        cacheFrom:
+        - postgres:9.6.9
+        - slamdev/playground-postgres:review
+    - imageName: slamdev/playground-postgres-restorer
+      workspace: deploy/docker/postgres-restorer
+      docker:
+        cacheFrom:
+        - alpine
+        - slamdev/playground-postgres-restorer:review
   deploy:
     kubectl:
       manifests:
       - build/review-app.yaml
-    kustomize: {}

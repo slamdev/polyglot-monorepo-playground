@@ -7,19 +7,33 @@ build:
   artifacts:
   - imageName: slamdev/playground-builder-base
     workspace: builders/base
+    docker:
+      cacheFrom:
+      - alpine
+      - slamdev/playground-builder-base
   - imageName: slamdev/playground-builder-java
     workspace: builders/java
+    docker:
+      cacheFrom:
+      - slamdev/playground-builder-base
+      - slamdev/playground-builder-java
   - imageName: slamdev/playground-builder-js
     workspace: builders/js
+    docker:
+      cacheFrom:
+      - slamdev/playground-builder-base
+      - slamdev/playground-builder-js
   - imageName: slamdev/playground-dind
     workspace: dind
+    docker:
+      cacheFrom:
+      - docker:dind
+      - slamdev/playground-dind
   - imageName: slamdev/playground-gitlab-runner-helper
-    workspace: gitlab-runner/helper
-  - imageName: slamdev/playground-gitlab-registrator
-    workspace: gitlab-runner/registrator
-  - imageName: slamdev/playground-gitlab-runner
-    workspace: gitlab-runner/runner
-  - imageName: slamdev/playground-postgres-backupper
-    workspace: postgres-backupper
+    workspace: gitlab-runner-helper
+    docker:
+      cacheFrom:
+      - gitlab/gitlab-runner-helper:x86_64-latest
+      - slamdev/playground-gitlab-runner-helper
 deploy:
   kubectl: {}

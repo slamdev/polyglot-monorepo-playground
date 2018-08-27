@@ -1,4 +1,15 @@
 apiVersion: skaffold/v1alpha2
 kind: Config
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+  - imageName: slamdev/playground-postgres-backupper
+    workspace: deploy
+    docker:
+      cacheFrom:
+      - alpine
+      - slamdev/playground-postgres-backupper:ops
 deploy:
-  kustomize: {}
+  kustomize:
+    kustomizePath: deploy

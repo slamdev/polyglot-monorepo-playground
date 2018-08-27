@@ -1,9 +1,0 @@
-bases:
-- ../../../../../../etc/k8s/deployment/overlays/java/overlays/dev
-- ../../../../../../etc/k8s/service/overlays/java/overlays/dev
-- ../../base
-patches:
-- image-patch.yaml
-commonLabels:
-  name: svc-java
-namePrefix: svc-java-

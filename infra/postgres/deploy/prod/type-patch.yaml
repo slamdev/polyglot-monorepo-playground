@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc
+spec:
+  type: ExternalName
+  externalName: postgres-prod.example.com
+  ports:
+  - port: 5432

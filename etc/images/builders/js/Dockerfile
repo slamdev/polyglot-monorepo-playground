@@ -1,7 +1,7 @@
 FROM slamdev/playground-builder-base
 
 RUN apk upgrade --no-cache \
-# Install nodejs and yarn
- && apk add --no-cache nodejs yarn \
+# Install nodejs and npm
+ && apk add --no-cache nodejs npm \
  && node -v \
- && yarn -v
+ && npm -v
