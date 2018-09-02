@@ -1,8 +1,7 @@
 bases:
-- ../../../../etc/k8s/service/overlays/generic/overlays/prod
 - ../
 patches:
-- type-patch.yaml
+- service-patch.yaml
 commonLabels:
-  name: postgres
-namePrefix: postgres-
+  env: prod
+namespace: playground-prod

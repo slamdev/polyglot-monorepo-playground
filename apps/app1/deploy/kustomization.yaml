@@ -1,5 +1,10 @@
-# This file is ignored by kustomize for some reasons
-# Everything below should be duplicated for dev\prod overlays
+resources:
+- service.yaml
+- deployment.yaml
 commonLabels:
   name: app1
 namePrefix: app1-
+configMapGenerator:
+- name: config
+  files:
+  - nginx.conf

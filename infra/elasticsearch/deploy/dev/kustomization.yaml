@@ -1,25 +1,5 @@
 bases:
-- ../../../../etc/k8s/statefulset/overlays/dev
-- ../../../../etc/k8s/service/overlays/generic/overlays/dev
 - ../
-resources:
-- governor-service.yaml
-patches:
-- image-patch.yaml
-- ports-patch.yaml
-- probes-patch.yaml
-- resources-patch.yaml
-- servicename-patch.yaml
-- strategy-patch.yaml
-- init-container-patch.yaml
-- security-context-patch.yaml
-- replicas-patch.yaml
-- volumes-patch.yaml
 commonLabels:
-  name: elasticsearch
-namePrefix: elasticsearch-
+  env: dev
 namespace: playground-dev
-configMapGenerator:
-- name: config
-  files:
-  - elasticsearch.yml

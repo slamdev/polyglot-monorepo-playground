@@ -1,21 +1,13 @@
-bases:
-- ../../../etc/k8s/deployment/overlays/generic/base
 resources:
 - service-account.yaml
-patches:
-- image-patch.yaml
-- strategy-patch.yaml
-- resources-patch.yaml
-- service-account-patch.yaml
-- config-patch.yaml
-- init-container-patch.yaml
-- config-patch.yaml
+- deployment.yaml
 commonLabels:
   name: gitlab-runner
-namespace: playground-ops
+  env: ops
 namePrefix: gitlab-runner-
+namespace: playground-ops
 configMapGenerator:
-- name: config
+- name: runner-config
   files:
   - config.toml
 - name: registration-config
@@ -25,4 +17,4 @@ configMapGenerator:
   - RUNNER_NAME=playground-runner
   - RUNNER_TAG_LIST=playground
   - CI_SERVER_URL=https://example.com
-  - CONFIG_FILE=/etc/gitlab-runner-root/config.toml
+  - GITLAB_CONFIG_FILE=/etc/gitlab-runner-root/config.toml

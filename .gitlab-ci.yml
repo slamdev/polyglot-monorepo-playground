@@ -44,7 +44,7 @@ etc:
   <<: *k8s
   stage: etc
   image: slamdev/playground-builder-base
-  script: make deploy-etc
+  script: make deploy-etc -j -O
   only:
   - master
 
@@ -52,7 +52,7 @@ ops:
   <<: *k8s
   stage: ops
   image: slamdev/playground-builder-base
-  script: make deploy-ops e=${CI_ENVIRONMENT_NAME}
+  script: make deploy-ops e=${CI_ENVIRONMENT_NAME} -j -O
   only:
   - master
   environment:
@@ -63,7 +63,7 @@ ops:
   <<: *k8s
   stage: infra
   image: slamdev/playground-builder-base
-  script: make deploy-infra e=${CI_ENVIRONMENT_NAME}
+  script: make deploy-infra e=${CI_ENVIRONMENT_NAME} -j -O
 
 infra-dev:
   <<: *infra
@@ -81,7 +81,7 @@ infra-review:
   <<: *k8s
   stage: apps
   image: slamdev/playground-builder-java
-  script: make deploy-java e=${CI_ENVIRONMENT_NAME}
+  script: make deploy-java e=${CI_ENVIRONMENT_NAME} -j -O
 
 java-dev:
   <<: *java
@@ -99,7 +99,7 @@ java-review:
   <<: *k8s
   stage: apps
   image: slamdev/playground-builder-js
-  script: make deploy-js e=${CI_ENVIRONMENT_NAME}
+  script: make deploy-js e=${CI_ENVIRONMENT_NAME} -j -O
 
 js-dev:
   <<: *js

@@ -33,10 +33,22 @@ deploy-etc: $(DEPLOY_ETC_TARGETS)
 ## OPS modules
 ##
 
-OPS_MODULES := ops/namespace-configuration $(shell find ops -name skaffold.yaml -mindepth 2 -maxdepth 2 -exec dirname {} \; | grep -v 'namespace-configuration')
+OPS_MODULES := $(shell find ops -name skaffold.yaml -mindepth 2 -maxdepth 2 -exec dirname {} \; | grep -v 'namespace-configuration')
 DEPLOY_OPS_TARGETS := $(foreach m,$(OPS_MODULES),deploy-ops/$(m))
 
-deploy-ops/%:
+# namespace configuration target should be run first and others should depend on it
+deploy-ops/ops/namespace-configuration: ENVIRONMENT := ops
+deploy-ops/ops/namespace-configuration: NAMESPACE := $(PROJECT)-ops
+deploy-ops/ops/namespace-configuration:
+	@echo "Deploying [ops/namespace-configuration] to $(NAMESPACE)"
+	$(call pull_images_for_cache,ops/namespace-configuration)
+	cd ops/namespace-configuration && skaffold run
+	$(call verify_deployment_status,ops/namespace-configuration)
+	$(call tag_n_push,ops/namespace-configuration)
+
+deploy-ops/%: ENVIRONMENT := ops
+deploy-ops/%: NAMESPACE := $(PROJECT)-ops
+deploy-ops/%: deploy-ops/ops/namespace-configuration
 	@echo "Deploying [$*] to $(NAMESPACE)"
 	$(call pull_images_for_cache,$*)
 	cd $* && skaffold run
@@ -49,10 +61,21 @@ deploy-ops: $(DEPLOY_OPS_TARGETS)
 ## INFRA modules
 ##
 
-INFRA_MODULES := infra/namespace-configuration $(shell find infra -name skaffold.yaml -mindepth 2 -maxdepth 2 -exec dirname {} \; | grep -v 'namespace-configuration')
+INFRA_MODULES := $(shell find infra -name skaffold.yaml -mindepth 2 -maxdepth 2 -exec dirname {} \; | grep -v 'namespace-configuration')
 DEPLOY_INFRA_TARGETS := $(foreach m,$(INFRA_MODULES),deploy-infra/$(m))
 
-deploy-infra/%:
+# namespace configuration target should be run first and others should depend on it
+deploy-infra/infra/namespace-configuration:
+	@echo "Deploying [infra/namespace-configuration] to $(NAMESPACE)"
+ifeq ($(ENVIRONMENT),review)
+	$(call prepare_review_app,infra/namespace-configuration)
+endif
+	$(call pull_images_for_cache,infra/namespace-configuration)
+	cd infra/namespace-configuration && skaffold run --profile=$(ENVIRONMENT)
+	$(call verify_deployment_status,infra/namespace-configuration)
+	$(call tag_n_push,infra/namespace-configuration)
+
+deploy-infra/%: deploy-infra/infra/namespace-configuration
 	@echo "Deploying [$*] to $(NAMESPACE)"
 ifeq ($(ENVIRONMENT),review)
 	$(call prepare_review_app,$*)

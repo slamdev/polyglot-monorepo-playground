@@ -1,7 +1,0 @@
-bases:
-- ../../../base/
-patches:
-- ports-patch.yaml
-- resources-patch.yaml
-- probes-patch.yaml
-- strategy-patch.yaml

@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job
+spec:
+  template:
+    spec:
+      containers:
+      - name: app
+        env:
+        - name: PG_BACKUP_DIR
+          value: /etc/backups
+        - name: PG_HOST
+          value: postgres-svc
+        - name: PG_PORT
+          value: "5432"
+        - name: PG_USER
+          value: postgres
+        - name: PG_PASSWORD
+          value: postgres
+        image: slamdev/playground-postgres-restorer
+        resources:
+          limits:
+            cpu: 4
+            memory: 4Gi
+          requests:
+            cpu: 4
+            memory: 4Gi
+        volumeMounts:
+        - name: backups-volume
+          mountPath: /etc/backups
+          subPath: postgres-backups
+      restartPolicy: OnFailure
+      volumes:
+      - name: backups-volume
+        cephfs:
+          path: /playground
+          readOnly: false
+          user: admin
+          secretRef:
+            name: ceph-secret
+          monitors:
+          - 10.10.10.1:6789
+          - 10.10.10.2:6789
+          - 10.10.10.3:6789

@@ -1,5 +1,6 @@
-# This file is ignored by kustomize for some reasons
-# Everything below should be duplicated for dev\prod overlays
+resources:
+- service.yaml
+- deployment.yaml
 commonLabels:
   name: svc-js
 namePrefix: svc-js-

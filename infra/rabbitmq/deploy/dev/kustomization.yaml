@@ -1,14 +1,5 @@
 bases:
-- ../../../../etc/k8s/statefulset/overlays/dev
-- ../../../../etc/k8s/service/overlays/generic/overlays/dev
 - ../
-patches:
-- env-patch.yaml
-- image-patch.yaml
-- ports-patch.yaml
-- probes-patch.yaml
-- resources-patch.yaml
-- servicename-patch.yaml
 commonLabels:
-  name: rabbitmq
-namePrefix: rabbitmq-
+  env: dev
+namespace: playground-dev

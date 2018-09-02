@@ -1,5 +1,10 @@
-# This file is ignored by kustomize for some reasons
-# Everything below should be duplicated for dev\prod overlays
+resources:
+- services.yaml
+- stateful-set.yaml
 commonLabels:
-  name: rabbitmq
-namePrefix: rabbitmq-
+  name: elasticsearch
+namePrefix: elasticsearch-
+configMapGenerator:
+- name: config
+  files:
+  - elasticsearch.yml

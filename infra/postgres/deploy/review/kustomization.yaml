@@ -1,15 +1,9 @@
-bases:
-- ../../../../etc/k8s/statefulset/overlays/dev
-- ../../../../etc/k8s/service/overlays/generic/overlays/dev
-- ../../../../etc/k8s/job/overlays/dev
-- ../
-patches:
-- env-patch.yaml
-- image-patch.yaml
-- ports-patch.yaml
-- resources-patch.yaml
-- volume-patch.yaml
-- servicename-patch.yaml
+resources:
+- stateful-set.yaml
+- job.yaml
+- service.yaml
 commonLabels:
+  env: review
   name: postgres
 namePrefix: postgres-
+namespace: playground-review

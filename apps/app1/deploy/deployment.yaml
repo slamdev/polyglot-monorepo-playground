@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    spec:
+      containers:
+      - name: app
+        image: slamdev/playground-app1
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 20
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 1
+          periodSeconds: 2
+          successThreshold: 1
+          timeoutSeconds: 2
+        ports:
+        - name: http
+          containerPort: 80
+        readinessProbe:
+          failureThreshold: 20
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 1
+          periodSeconds: 2
+          successThreshold: 1
+          timeoutSeconds: 2
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 1
+            memory: 1Gi
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 5
+      volumes:
+      - name: config-volume
+        configMap:
+          name: config
+          items:
+          - key: nginx.conf
+            path: nginx.conf

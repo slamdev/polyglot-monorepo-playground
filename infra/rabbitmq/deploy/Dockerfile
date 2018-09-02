@@ -1,1 +1,1 @@
-FROM pivotalrabbitmq/rabbitmq-autocluster:3.6.14
+FROM rabbitmq:3.7-alpine

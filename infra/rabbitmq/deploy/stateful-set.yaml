@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app
+spec:
+  serviceName: svc
+  replicas: 3
+  template:
+    spec:
+      serviceAccountName: sa
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: app
+        image: slamdev/playground-rabbitmq
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/rabbitmq
+        - name: data-volume
+          mountPath: /var/lib/rabbitmq/mnesia
+        ports:
+        - name: http
+          containerPort: 15672
+        - name: amqp
+          containerPort: 5672
+        livenessProbe:
+          exec:
+            command: ["rabbitmqctl", "status"]
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 10
+        readinessProbe:
+          exec:
+            command: ["rabbitmqctl", "status"]
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 10
+        imagePullPolicy: Always
+        env:
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: RABBITMQ_USE_LONGNAME
+          value: "true"
+        - name: K8S_SERVICE_NAME
+          value: "rabbitmq-svc"
+        - name: RABBITMQ_NODENAME
+          value: "rabbit@$(MY_POD_IP)"
+        - name: RABBITMQ_ERLANG_COOKIE
+          value: "polyglot-monorepo-playground"
+      volumes:
+      - name: config-volume
+        configMap:
+          name: config
+          items:
+          - key: rabbitmq.conf
+            path: rabbitmq.conf
+          - key: enabled_plugins
+            path: enabled_plugins
+  volumeClaimTemplates:
+  - metadata:
+      name: data-volume
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi

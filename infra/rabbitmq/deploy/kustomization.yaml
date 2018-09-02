@@ -1,5 +1,12 @@
-# This file is ignored by kustomize for some reasons
-# Everything below should be duplicated for dev\prod overlays
+resources:
+- services.yaml
+- stateful-set.yaml
+- service-account.yaml
 commonLabels:
   name: rabbitmq
 namePrefix: rabbitmq-
+configMapGenerator:
+- name: config
+  files:
+  - rabbitmq.conf
+  - enabled_plugins

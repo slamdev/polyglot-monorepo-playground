@@ -1,5 +1,5 @@
-# This file is ignored by kustomize for some reasons
-# Everything below should be duplicated for dev\prod overlays
+resources:
+- service.yaml
 commonLabels:
   name: postgres
 namePrefix: postgres-

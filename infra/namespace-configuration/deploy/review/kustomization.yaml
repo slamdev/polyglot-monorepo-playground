@@ -2,4 +2,6 @@ bases:
 - ../
 resources:
 - namespace.yaml
+commonLabels:
+  env: review
 namespace: playground-review

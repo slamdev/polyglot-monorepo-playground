@@ -20,4 +20,4 @@ RUNNER_TOKEN=`curl --request POST "${URL}/runners" \
 
 echo "Runner is registered with token: ${RUNNER_TOKEN}"
 
-sed -i -e "s/_TOKEN_/${RUNNER_TOKEN}/g" ${CONFIG_FILE}
+sed -i -e "s/_TOKEN_/${RUNNER_TOKEN}/g" ${GITLAB_CONFIG_FILE}

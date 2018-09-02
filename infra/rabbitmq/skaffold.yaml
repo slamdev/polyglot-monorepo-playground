@@ -11,7 +11,7 @@ profiles:
       workspace: deploy
       docker:
         cacheFrom:
-        - pivotalrabbitmq/rabbitmq-autocluster:3.6.14
+        - rabbitmq:3.7-alpine
         - slamdev/playground-rabbitmq:dev
   deploy:
     kustomize:
@@ -23,7 +23,7 @@ profiles:
       workspace: deploy
       docker:
         cacheFrom:
-        - pivotalrabbitmq/rabbitmq-autocluster:3.6.14
+        - rabbitmq:3.7-alpine
         - slamdev/playground-rabbitmq:prod
   deploy:
     kustomize:
@@ -35,7 +35,7 @@ profiles:
       workspace: deploy
       docker:
         cacheFrom:
-        - pivotalrabbitmq/rabbitmq-autocluster:3.6.14
+        - rabbitmq:3.7-alpine
         - slamdev/playground-rabbitmq:review
   deploy:
     kubectl:

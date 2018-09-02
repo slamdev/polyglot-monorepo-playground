@@ -2,3 +2,5 @@ resources:
 - namespace.yaml
 - ceph-secret.yaml
 namespace: playground-ops
+commonLabels:
+  env: ops

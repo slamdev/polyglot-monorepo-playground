@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    spec:
+      initContainers:
+      - name: registrator
+        envFrom:
+        - configMapRef:
+            name: registration-config
+        image: slamdev/playground-gitlab-registrator
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/gitlab-runner-root
+      containers:
+      - name: app
+        envFrom:
+        - configMapRef:
+            name: registration-config
+        args:
+        - run
+        image: slamdev/playground-gitlab-runner
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 1
+            memory: 1Gi
+        lifecycle:
+          preStop:
+            exec:
+              command: ["./opt/shutdown.sh"]
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/gitlab-runner
+      restartPolicy: Always
+      serviceAccountName: gitlab-runner-sa
+      terminationGracePeriodSeconds: 180
+      volumes:
+      - name: config-volume
+        configMap:
+          name: runner-config

@@ -2,4 +2,6 @@ bases:
 - ../
 resources:
 - namespace.yaml
+commonLabels:
+  env: prod
 namespace: playground-prod

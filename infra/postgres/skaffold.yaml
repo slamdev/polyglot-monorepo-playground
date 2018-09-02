@@ -15,13 +15,13 @@ profiles:
       sha256: {}
     artifacts:
     - imageName: slamdev/playground-postgres
-      workspace: deploy/docker/postgres
+      workspace: deploy/review/docker/postgres
       docker:
         cacheFrom:
         - postgres:9.6.9
         - slamdev/playground-postgres:review
     - imageName: slamdev/playground-postgres-restorer
-      workspace: deploy/docker/postgres-restorer
+      workspace: deploy/review/docker/postgres-restorer
       docker:
         cacheFrom:
         - alpine

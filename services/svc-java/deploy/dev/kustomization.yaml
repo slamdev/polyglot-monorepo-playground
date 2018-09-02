@@ -1,9 +1,7 @@
 bases:
-- ../../../../etc/k8s/deployment/overlays/java/overlays/dev
-- ../../../../etc/k8s/service/overlays/java/overlays/dev
 - ../
 patches:
-- image-patch.yaml
+- env-patch.yaml
 commonLabels:
-  name: svc-java
-namePrefix: svc-java-
+  env: dev
+namespace: playground-dev

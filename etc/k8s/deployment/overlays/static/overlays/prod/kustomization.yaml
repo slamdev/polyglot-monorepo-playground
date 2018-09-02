@@ -1,5 +1,0 @@
-bases:
-- ../../base
-patches:
-- replicas-patch.yaml
-namespace: playground-prod

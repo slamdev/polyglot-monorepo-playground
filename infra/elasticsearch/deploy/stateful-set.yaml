@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app
+spec:
+  replicas: 3
+  serviceName: governor-svc
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    spec:
+      initContainers:
+      - name: init
+        command:
+        - sysctl
+        - -w
+        - vm.max_map_count=262144
+        image: busybox
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+      containers:
+      - name: app
+        env:
+        - name: ES_JAVA_OPTS
+          value: -Xms2000m -Xmx2000m
+        image: slamdev/playground-elasticsearch
+        imagePullPolicy: Always
+        ports:
+        - name: client
+          containerPort: 9200
+        - name: transport
+          containerPort: 9300
+        readinessProbe:
+          httpGet:
+            path: /_cluster/health?local=true
+            port: 9200
+            scheme: HTTP
+          initialDelaySeconds: 5
+        resources:
+          requests:
+            memory: 4Gi
+        securityContext:
+          capabilities:
+            add:
+            - IPC_LOCK
+            - SYS_RESOURC
+          privileged: true
+          runAsUser: 1000
+        volumeMounts:
+        - name: data-volume
+          mountPath: /usr/share/elasticsearch/data
+        - name: config-volume
+          mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          subPath: elasticsearch.yml
+      securityContext:
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 1800
+      volumes:
+      - name: config-volume
+        configMap:
+          name: config
+          items:
+          - key: elasticsearch.yml
+            path: elasticsearch.yml
+  volumeClaimTemplates:
+  - metadata:
+      name: data-volume
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi

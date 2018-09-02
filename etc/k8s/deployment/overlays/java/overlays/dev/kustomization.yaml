@@ -1,5 +1,0 @@
-bases:
-- ../../base
-patches:
-- env-patch.yaml
-namespace: playground-dev
